@@ -7,6 +7,8 @@
 #include "Components/TimelineComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "GameFramework/PlayerController.h"
+
 // Sets default values
 ALauncher::ALauncher()
 {
@@ -94,6 +96,13 @@ void ALauncher::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	GetWorld()->GetFirstPlayerController()->GetMousePosition(MouseOffset.X, MouseOffset.Y);
+
+	MouseOffset.X -= GetWorld()->GetGameViewport()->Viewport->GetSizeXY().X * 0.5f;
+	MouseOffset.Y -= GetWorld()->GetGameViewport()->Viewport->GetSizeXY().Y * 0.5f;
+
+	UpdateCannonDirection();
+	
 	if (CoolDownTimeRemain > 0.0f)
 	{
 		CoolDownTimeRemain -= DeltaTime;
@@ -107,34 +116,7 @@ void ALauncher::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-	PlayerInputComponent->BindAxis("MouseMoveX", this, &ALauncher::MouseMoveX);
-	PlayerInputComponent->BindAxis("MouseMoveY", this, &ALauncher::MouseMoveY);
-
 	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ALauncher::Fire);
-}
-
-void ALauncher::MouseMoveX(float value)
-{
-	MouseOffset.X += value * 4.0f;
-
-	float ViewportX = GetWorld()->GetGameViewport()->Viewport->GetSizeXY().X;
-
-	MouseOffset.X = UKismetMathLibrary::FMax(MouseOffset.X, -ViewportX * 0.25f);
-	MouseOffset.X = UKismetMathLibrary::FMin(MouseOffset.X, ViewportX * 0.25f);
-
-	UpdateCannonDirection();
-}
-
-void ALauncher::MouseMoveY(float value)
-{
-	MouseOffset.Y += value * 4.0f;
-
-	float ViewportY = GetWorld()->GetGameViewport()->Viewport->GetSizeXY().Y * 0.5f;
-
-	MouseOffset.Y = UKismetMathLibrary::FMax(MouseOffset.Y, -ViewportY);
-	MouseOffset.Y = UKismetMathLibrary::FMin(MouseOffset.Y, ViewportY);
-
-	UpdateCannonDirection();
 }
 
 void ALauncher::Fire()
@@ -179,7 +161,7 @@ void ALauncher::UpdateCannonDirection()
 	FVector CameraRightVector = UKismetMathLibrary::GetRightVector(CameraRotator);
 	FVector CameraUpVector = UKismetMathLibrary::GetUpVector(CameraRotator);
 
-	float ViewportZ = GetWorld()->GetGameViewport()->Viewport->GetSizeXY().X * 0.25f;
+	float ViewportZ = GetWorld()->GetGameViewport()->Viewport->GetSizeXY().X * 0.5f;
 
 	FVector CameraDirection = CameraForwardVector * ViewportZ + CameraRightVector * MouseOffset.X - CameraUpVector * MouseOffset.Y;
 	CameraDirection.Normalize();

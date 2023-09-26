@@ -29,12 +29,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UFUNCTION()
-	void MouseMoveX(float value);
-
-	UFUNCTION()
-	void MouseMoveY(float value);
-
-	UFUNCTION()
 	void Fire();
 
 	UFUNCTION()
@@ -70,7 +64,7 @@ public:
 	UPROPERTY(VisibleAnywhere)
 	class UCurveVector* CurveVector;
 
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	FVector2D MouseOffset;
 
 	UPROPERTY(EditAnywhere)
